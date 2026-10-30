@@ -1,0 +1,37 @@
+{
+  "widths": [
+    1280,
+    1920
+  ],
+  "frameWidth": 1280,
+  "clips": {
+    "walk-in": {
+      "src": "Videos and images/Part 1/updated video.mp4",
+      "trim": null,
+      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right. This crop trims the bottom strip it sits in. Set crop to null once you have a clean source.",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0.075
+      },
+      "firstStill": "walk-in-start",
+      "lastStill": "hut-closed",
+      "lastStillSource": "Videos and images/Part 1/end frame hd.webp",
+      "_lastStillSource": "Optional sharper export of the clip's last frame. It is auto-aligned (scale, offset, tone) to the real last frame and cropped like the video, so the swap never shifts."
+    },
+    "hut-open": {
+      "src": "Videos and images/Part 2/Part 2.mp4",
+      "trim": null,
+      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right. This crop trims it away. Set crop to null once you have a clean source.",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "right": 0.095,
+        "bottom": 0
+      },
+      "firstStill": "hut-approach",
+      "lastStill": "interior"
+    }
+  }
+}

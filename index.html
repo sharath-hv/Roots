@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf1dc" />
+    <meta name="description" content="Organic fruit and flowers from our farm, picked to order and delivered within two days." />
+    <title>Roots</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Figtree:wght@400;500;600&display=swap"
+    />
+    <link rel="preload" as="image" href="/media/walk-in-start-1280.jpg" />
+    <style>
+      /* Boot loader: painted before any JS or CSS bundle arrives. src/lib/bootLoader.ts drives it. */
+      html.is-loading { overflow: hidden; }
+      body { margin: 0; background: #fbf1dc; }
+      .boot {
+        position: fixed; inset: 0; z-index: 100;
+        display: grid; place-content: center; justify-items: center; gap: 16px;
+        background: #fbf1dc; color: #3b2f14;
+        transition: opacity 0.8s ease, visibility 0.8s;
+      }
+      .boot.is-done { opacity: 0; visibility: hidden; }
+      .boot__text {
+        margin: 0;
+        font: 300 clamp(26px, 4vw, 34px)/1.1 'Cormorant Garamond', Georgia, serif;
+        letter-spacing: -0.01em;
+        animation: boot-breathe 2.4s ease-in-out infinite;
+      }
+      .boot__bar { width: 120px; height: 1px; background: rgb(59 47 20 / 0.15); overflow: hidden; }
+      .boot__bar > span {
+        display: block; height: 100%; background: #d9631f;
+        transform: scaleX(0); transform-origin: left; transition: transform 0.25s linear;
+      }
+      @keyframes boot-breathe { 50% { opacity: 0.55; } }
+      @media (prefers-reduced-motion: reduce) { .boot__text { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div id="boot-loader" class="boot" role="status">
+      <p class="boot__text">Opening the gate</p>
+      <span class="boot__bar" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></span>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
