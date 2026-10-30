@@ -5,6 +5,8 @@ import type { Scrubber, ScrubberOptions } from './types';
 /**
  * Scrubs an all-keyframe MP4 by setting currentTime. The whole file is fetched
  * into a blob first so seeks never wait on the network. play() is never called.
+ * Opened from disk (file://), fetch() is blocked, so the video reads the file directly;
+ * local seeks are fast anyway.
  */
 export class VideoScrubber implements Scrubber {
   readonly el: HTMLVideoElement;
@@ -30,15 +32,19 @@ export class VideoScrubber implements Scrubber {
   }
 
   async load(onProgress?: (p: number) => void) {
-    const blob = await fetchWithProgress(clipUrl(this.opts.clip), (p) => onProgress?.(p), this.abort.signal);
-    this.url = URL.createObjectURL(blob);
+    const src = clipUrl(this.opts.clip);
+    if (location.protocol !== 'file:') {
+      const blob = await fetchWithProgress(src, (p) => onProgress?.(p), this.abort.signal);
+      this.url = URL.createObjectURL(blob);
+    }
     const v = this.el;
     await new Promise<void>((resolve, reject) => {
       v.addEventListener('loadeddata', () => resolve(), { once: true });
       v.addEventListener('error', () => reject(new Error(`Could not decode ${this.opts.clip}`)), { once: true });
-      v.src = this.url!;
+      v.src = this.url ?? src;
       v.load();
     });
+    onProgress?.(1);
     this.frames = Math.max(1, Math.round(v.duration * this.opts.fps));
     this.ready = true;
     this.current = this.target;

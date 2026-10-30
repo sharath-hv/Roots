@@ -3,6 +3,13 @@ import { framesBase } from '../lib/media';
 import { ease, onTick } from './ticker';
 import type { Scrubber, ScrubberOptions } from './types';
 
+// Bundled rather than fetched, so the site also works when index.html is opened from disk
+// (browsers block fetch() on file:// pages).
+const manifests = import.meta.glob<{ count: number }>('/public/media/frames/*/manifest.json', {
+  eager: true,
+  import: 'default',
+});
+
 /**
  * Canvas fallback: draws pre-extracted WebP frames (npm run media).
  * Smooth everywhere, including Safari, at the cost of more bytes.
@@ -32,9 +39,9 @@ export class FrameScrubber implements Scrubber {
 
   async load(onProgress?: (p: number) => void) {
     const base = framesBase(this.opts.clip);
-    const res = await fetch(`${base}/manifest.json`);
-    if (!res.ok) throw new Error(`No frames for ${this.opts.clip}. Run npm run media.`);
-    const { count } = (await res.json()) as { count: number };
+    const manifest = manifests[`/public/media/frames/${this.opts.clip}/manifest.json`];
+    if (!manifest) throw new Error(`No frames for ${this.opts.clip}. Run npm run media.`);
+    const { count } = manifest;
     let done = 0;
     const urls = Array.from({ length: count }, (_, i) => `${base}/${String(i + 1).padStart(4, '0')}.webp`);
     // Small concurrency so the first frames land early and the network stays fair.

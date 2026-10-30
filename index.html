@@ -46,6 +46,11 @@
       <span class="boot__bar" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></span>
     </div>
     <div id="root"></div>
+    <!-- This file is the dev source and needs `npm run dev`. Double-clicked from disk, hop to the
+         build in dist/, which opens without a server (run `npm run build` first). -->
+    <script id="file-redirect">
+      if (location.protocol === 'file:') location.replace('dist/index.html');
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

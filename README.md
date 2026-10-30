@@ -11,6 +11,13 @@ npm run dev     # http://localhost:5173
 npm run build   # type-check and build to dist/
 ```
 
+### Opening by double-click
+
+Double-clicking `index.html` in this folder opens the site without a server. That file is the dev source, so when it is opened from disk it redirects to `dist/index.html`, the build. **Run `npm run build` first, and again after any change**, or you will see an old version (or nothing, if `dist/` does not exist yet).
+
+The build is made to work from disk: the JS and CSS are inside `dist/index.html` (browsers block loading them as separate files from `file://`), frame manifests are bundled instead of fetched, and videos are read straight from the file instead of through `fetch()`. Sound still waits for the first click or key press.
+
+
 ## How the page is put together
 
 ```
