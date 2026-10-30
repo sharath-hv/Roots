@@ -24,7 +24,8 @@ export const CURRENCY = {
 // Encoded files come out of `npm run media` as <clip>-<width>.mp4 and
 // <still>-<width>.jpg. We pick a width once per visit from the viewport.
 export const MEDIA = {
-  base: '/media',
+  // BASE_URL is '/' in dev and './' in builds, so the site works from a sub-path like GitHub Pages.
+  base: `${import.meta.env.BASE_URL}media`,
   widths: mediaConfig.widths as number[],
   /** 'video' = blob-backed <video>; 'frames' = canvas WebP sequence; 'auto' = frames on Safari, video elsewhere. */
   scrubMode: 'auto' as 'auto' | 'video' | 'frames',

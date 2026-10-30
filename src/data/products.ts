@@ -1,3 +1,5 @@
+import { MEDIA } from '../config';
+
 export type Unit = 'kg' | 'dozen' | 'bunch';
 
 export interface Product {
@@ -29,7 +31,7 @@ export const products: Product[] = [
     certificationLabel: 'India Organic (NPOP)',
     stock: 24,
     hotspot: { x: 0.708, y: 0.75 },
-    image: '/media/products/mangoes.webp',
+    image: `${MEDIA.base}/products/mangoes.webp`,
   },
   {
     id: 'oranges',
@@ -43,7 +45,7 @@ export const products: Product[] = [
     certificationLabel: 'India Organic (NPOP)',
     stock: 40,
     hotspot: { x: 0.366, y: 0.7 },
-    image: '/media/products/oranges.webp',
+    image: `${MEDIA.base}/products/oranges.webp`,
   },
   {
     id: 'strawberries',
@@ -57,7 +59,7 @@ export const products: Product[] = [
     certificationLabel: 'PGS-India Organic',
     stock: 0,
     hotspot: { x: 0.77, y: 0.91 },
-    image: '/media/products/strawberries.webp',
+    image: `${MEDIA.base}/products/strawberries.webp`,
   },
   {
     id: 'green-grapes',
@@ -71,7 +73,7 @@ export const products: Product[] = [
     certificationLabel: 'In conversion (year 2 of 3)',
     stock: 18,
     hotspot: { x: 0.345, y: 0.905 },
-    image: '/media/products/green-grapes.webp',
+    image: `${MEDIA.base}/products/green-grapes.webp`,
   },
   {
     id: 'wildflowers',
@@ -85,7 +87,7 @@ export const products: Product[] = [
     certificationLabel: 'PGS-India Organic',
     stock: 12,
     hotspot: { x: 0.625, y: 0.63 },
-    image: '/media/products/wildflowers.png',
+    image: `${MEDIA.base}/products/wildflowers.png`,
   },
   {
     id: 'lavender',
@@ -99,7 +101,7 @@ export const products: Product[] = [
     certificationLabel: 'PGS-India Organic',
     stock: 9,
     hotspot: { x: 0.379, y: 0.44 },
-    image: '/media/products/lavender.png',
+    image: `${MEDIA.base}/products/lavender.png`,
   },
 ];
 
