@@ -14,6 +14,7 @@ import { useReducedMotion } from './lib/hooks';
 export function App() {
   const reducedMotion = useReducedMotion();
   const [failed, setFailed] = useState(false);
+  const [headerDark, setHeaderDark] = useState(false);
   const shopTitle = useRef<HTMLHeadingElement>(null);
   const immersive = !reducedMotion && !failed;
 
@@ -30,10 +31,10 @@ export function App() {
   return (
     <>
       <div id="top" />
-      <Header onShopAll={goToShop} />
+      <Header onShopAll={goToShop} onDark={immersive && headerDark} />
       <SoundToggle />
       <main>
-        {immersive ? <Journey onFail={() => setFailed(true)} /> : <StaticIntro />}
+        {immersive ? <Journey onHeaderDark={setHeaderDark} onFail={() => setFailed(true)} /> : <StaticIntro />}
         <ShopGrid ref={shopTitle} />
         <HowWeFarm />
       </main>

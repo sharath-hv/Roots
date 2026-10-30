@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { STORAGE_KEYS } from '../config';
-import { readStorage, writeStorage } from '../lib/storage';
 import { ambience } from './ambience';
 
 /**
- * Sound is on by default; a visitor who turns it off stays off on later visits. Browsers won't
+ * Sound is on every time the page loads; muting lasts for that visit only. Browsers won't
  * start audio before a click, tap or key press (scrolling doesn't count), so it tries straight
  * away and again on the first such gesture anywhere on the page. Until then `waiting` is true,
  * so the button can ask for that click.
  */
 export function useSound() {
-  const [on, setOn] = useState(() => readStorage<boolean>(STORAGE_KEYS.sound, true));
+  const [on, setOn] = useState(true);
   const [audible, setAudible] = useState(ambience.audible);
   // Whether sound was still waiting when the current press began. The same press is what lets
   // the browser start audio, so by the time `click` fires it may already be playing; reading
@@ -45,7 +43,6 @@ export function useSound() {
     const next = !on;
     if (next) ambience.start();
     else ambience.stop();
-    writeStorage(STORAGE_KEYS.sound, next);
     setOn(next);
   }, [on]);
 

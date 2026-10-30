@@ -30,7 +30,7 @@ export const products: Product[] = [
     organicCertified: true,
     certificationLabel: 'India Organic (NPOP)',
     stock: 24,
-    hotspot: { x: 0.708, y: 0.75 },
+    hotspot: { x: 0.685, y: 0.721 },
     image: `${MEDIA.base}/products/mangoes.webp`,
   },
   {
@@ -44,7 +44,7 @@ export const products: Product[] = [
     organicCertified: true,
     certificationLabel: 'India Organic (NPOP)',
     stock: 40,
-    hotspot: { x: 0.366, y: 0.7 },
+    hotspot: { x: 0.398, y: 0.679 },
     image: `${MEDIA.base}/products/oranges.webp`,
   },
   {
@@ -58,7 +58,7 @@ export const products: Product[] = [
     organicCertified: true,
     certificationLabel: 'PGS-India Organic',
     stock: 0,
-    hotspot: { x: 0.77, y: 0.91 },
+    hotspot: { x: 0.738, y: 0.855 },
     image: `${MEDIA.base}/products/strawberries.webp`,
   },
   {
@@ -72,7 +72,7 @@ export const products: Product[] = [
     organicCertified: false,
     certificationLabel: 'In conversion (year 2 of 3)',
     stock: 18,
-    hotspot: { x: 0.345, y: 0.905 },
+    hotspot: { x: 0.38, y: 0.851 },
     image: `${MEDIA.base}/products/green-grapes.webp`,
   },
   {
@@ -86,7 +86,7 @@ export const products: Product[] = [
     organicCertified: true,
     certificationLabel: 'PGS-India Organic',
     stock: 12,
-    hotspot: { x: 0.625, y: 0.63 },
+    hotspot: { x: 0.616, y: 0.62 },
     image: `${MEDIA.base}/products/wildflowers.png`,
   },
   {
@@ -100,7 +100,7 @@ export const products: Product[] = [
     organicCertified: true,
     certificationLabel: 'PGS-India Organic',
     stock: 9,
-    hotspot: { x: 0.379, y: 0.44 },
+    hotspot: { x: 0.409, y: 0.46 },
     image: `${MEDIA.base}/products/lavender.png`,
   },
 ];

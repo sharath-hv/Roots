@@ -6,28 +6,37 @@
   "frameWidth": 1280,
   "clips": {
     "walk-in": {
-      "src": "Videos and images/Part 1/updated video.mp4",
+      "src": "Videos and images/Part 1/updated_video.mp4",
       "trim": null,
-      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right. This crop trims the bottom strip it sits in. Set crop to null once you have a clean source.",
+      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right (y 1345-1392 of 1440 in the 2560x1440 source). This crop trims the bottom 8% strip it sits in, with a margin. Set crop to null once you have a clean source.",
       "crop": {
         "left": 0,
         "top": 0,
         "right": 0,
-        "bottom": 0.075
+        "bottom": 0.08
       },
       "firstStill": "walk-in-start",
       "lastStill": "hut-closed",
-      "lastStillSource": "Videos and images/Part 1/end frame hd.webp",
-      "_lastStillSource": "Optional sharper export of the clip's last frame. It is auto-aligned (scale, offset, tone) to the real last frame and cropped like the video, so the swap never shifts."
+      "lastStillSource": null,
+      "_lastStillSource": "Optional sharper export of the clip's last frame. It is auto-aligned (scale, offset, tone) to the real last frame and cropped like the video, so the swap never shifts. Off (null) since the 2560px source: the old 'end frame hd.webp' is a different view and carries its own watermark.",
+      "lastStillPatches": [
+        {
+          "x": 0.398,
+          "y": 0.329,
+          "w": 0.031,
+          "h": 0.07
+        }
+      ],
+      "_lastStillPatches": "Rectangles (fractions of the frame) painted out of the last still, filled from their surroundings. The one here is the red butterfly in the sky that sat behind the fold copy."
     },
     "hut-open": {
-      "src": "Videos and images/Part 2/Part 2.mp4",
+      "src": "Videos and images/Part 2/Part_2.mp4",
       "trim": null,
-      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right. This crop trims it away. Set crop to null once you have a clean source.",
+      "_todo": "TODO: the source carries a 'KlingAI 4.0' watermark bottom-right (x 3057-3309 of 3369 in the 3369x1439 source). This crop trims the right 10% it sits in, with a margin. Set crop to null once you have a clean source.",
       "crop": {
         "left": 0,
         "top": 0,
-        "right": 0.095,
+        "right": 0.1,
         "bottom": 0
       },
       "firstStill": "hut-approach",

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import { MEDIA, TIMELINE } from '../config';
+import { BRAND, MEDIA, TIMELINE } from '../config';
 import { usePortrait } from '../lib/hooks';
 import { hideBootLoader, setBootProgress } from '../lib/bootLoader';
 import { stillUrl } from '../lib/media';
@@ -64,6 +64,18 @@ const DOOR_AJAR_VH = T.doorStart + doorScrollFor(TIMELINE.doorsAjarSeconds / TIM
 // Where the step-inside auto-scroll stops: the final interior frame, stall and hotspots fully in.
 const STALL_VH = T.doorEnd + 32;
 
+// Brightness (0-255) behind the header logo for every frame of each clip and for the stall
+// still, measured at encode time (scripts/header-tone.mjs). Bundled rather than fetched so it
+// also works when the site is opened from disk.
+type HeaderTone = { clips: Record<string, number[]>; stills: Record<string, number> };
+const HEADER_TONE = Object.values(
+  import.meta.glob<HeaderTone>('/public/media/header-tone.json', { eager: true, import: 'default' }),
+)[0];
+const lumaAt = (clip: string, p: number) => {
+  const frames = HEADER_TONE?.clips[clip];
+  return frames?.length ? frames[Math.round(clamp01(p) * (frames.length - 1))] : 255;
+};
+
 /**
  * While an auto-scroll runs, swallow downward wheel/touch/key input so the
  * gesture that started it doesn't fight it. Scrolling up cancels it.
@@ -91,10 +103,12 @@ function lockInput(onCancel: () => void) {
 
 interface Props {
   onPhase?(phase: Phase): void;
+  /** Called when the footage behind the header logo turns dark (true) or light (false). */
+  onHeaderDark?(dark: boolean): void;
   onFail(): void;
 }
 
-export function Journey({ onPhase, onFail }: Props) {
+export function Journey({ onPhase, onHeaderDark, onFail }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const walkMount = useRef<HTMLDivElement>(null);
   const doorMount = useRef<HTMLDivElement>(null);
@@ -108,6 +122,7 @@ export function Journey({ onPhase, onFail }: Props) {
   const autoFrom = useRef(Infinity);
   const autoRun = useRef<{ tween: gsap.core.Tween; unlock: () => void } | null>(null);
   const lastPos = useRef(0);
+  const headerDark = useRef(false);
 
   // Scrubbers: load part 1 behind the loader, then part 2 quietly.
   useEffect(() => {
@@ -161,14 +176,32 @@ export function Journey({ onPhase, onFail }: Props) {
       else if (crossed(DOOR_AJAR_VH + 3) && pos < STALL_VH - 5) autoScrollTo(self, STALL_VH);
     }
     lastPos.current = pos;
-    walkScrub.current?.setTarget(easeOutTail(pos / T.walk));
-    doorScrub.current?.setTarget(easeInHead((pos - T.doorStart) / (T.doorEnd - T.doorStart)));
+    const walkP = easeOutTail(pos / T.walk);
+    const doorP = easeInHead((pos - T.doorStart) / (T.doorEnd - T.doorStart));
+    walkScrub.current?.setTarget(walkP);
+    doorScrub.current?.setTarget(doorP);
     setStallActive(pos >= T.doorEnd + 10);
     const phase: Phase =
       self.progress >= 1 ? 'after' : pos >= T.doorEnd ? 'stall' : pos >= T.foldEnd ? 'door' : pos >= T.foldStart - 20 ? 'fold' : 'walk';
     if (phase !== phaseRef.current) {
       phaseRef.current = phase;
       onPhase?.(phase);
+    }
+    // Whatever is behind the logo right now: the walk, the door clip once the dissolve is half
+    // way, then the stall still; past the journey it is the cream page.
+    const luma =
+      phase === 'after'
+        ? 255
+        : pos >= T.doorEnd
+          ? (HEADER_TONE?.stills[MEDIA.clips.hutOpen.last] ?? 255)
+          : pos >= T.foldEnd + TIMELINE.dissolveVh / 2
+            ? lumaAt(MEDIA.clips.hutOpen.name, doorP)
+            : lumaAt(MEDIA.clips.walkIn.name, walkP);
+    // Two thresholds so frames near the line don't make it flicker.
+    const dark = headerDark.current ? luma < 150 : luma < 125;
+    if (dark !== headerDark.current) {
+      headerDark.current = dark;
+      onHeaderDark?.(dark);
     }
   }
 
@@ -212,7 +245,7 @@ export function Journey({ onPhase, onFail }: Props) {
       const q = gsap.utils.selector(stage);
       const tl = gsap.timeline({ defaults: { ease: 'none' } });
       tl.set({}, {}, T.total);
-      tl.to(q('.scroll-cue--walk'), { autoAlpha: 0, duration: 20 }, 0);
+      tl.to(q('.hero'), { autoAlpha: 0, y: -24, duration: 24 }, 0);
       // Once the walk has eased to a stop, cross-fade to the sharp still of the same frame.
       tl.fromTo(q('.scrub-still'), { opacity: 0 }, { opacity: 1, duration: 20, ease: 'sine.inOut' }, T.walk + 8);
       // Once the walk ends, the cue comes back to lead people on to the stall.
@@ -291,11 +324,34 @@ export function Journey({ onPhase, onFail }: Props) {
 
         <FoldCopy sequenced />
 
-        <ScrollCue className="scroll-cue--walk" label="Scroll to walk in" />
+        {/* Hero copy on the first frame, with the scroll prompt right under it. */}
+        <div className="hero">
+          <p className="hero__title">{heroLines(BRAND.tagline)}</p>
+          <ScrollCue className="scroll-cue--hero" label="Scroll to experience" />
+        </div>
         <ScrollCue className="scroll-cue--buy" label="Scroll to buy" />
         <ScrollCue className="scroll-cue--door" label="Scroll to step inside" />
       </div>
     </section>
+  );
+}
+
+/**
+ * Splits the tagline after its first comma so the hero reads as two lines, and highlights the
+ * second line (minus its closing punctuation) as the key phrase.
+ */
+function heroLines(text: string) {
+  const i = text.indexOf(',');
+  if (i < 0) return text;
+  const rest = text.slice(i + 1).trim();
+  const [, phrase, end] = rest.match(/^(.*?)([.!?]*)$/)!;
+  return (
+    <>
+      {text.slice(0, i + 1)}
+      <br />
+      <em className="hl">{phrase}</em>
+      {end}
+    </>
   );
 }
 

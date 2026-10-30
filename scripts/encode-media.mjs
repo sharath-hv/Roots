@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ffmpegStatic from 'ffmpeg-static';
 import { alignStill, sourceSize } from './align-still.mjs';
+import { writeHeaderTone } from './header-tone.mjs';
 
 const ffmpeg = process.env.FFMPEG || ffmpegStatic || 'ffmpeg';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -75,9 +76,28 @@ for (const [name, clip] of Object.entries(cfg.clips)) {
         height: Math.round((width * vsize.h) / vsize.w),
       })),
     });
-    console.log(`→ ${clip.lastStill}-*.jpg from ${clip.lastStillSource} (match ${(fit.ncc * 100).toFixed(1)}%)`);
+    console.log(`→ ${clip.lastStillSource} as ${clip.lastStill}-*.jpg (match ${(fit.ncc * 100).toFixed(1)}%)`);
     if (fit.ncc < 0.95) console.warn(`  ! low match: is ${clip.lastStillSource} really the last frame of ${name}?`);
   }
+
+  // Paint small things out of the last still (e.g. a butterfly behind the fold copy), filling
+  // each rectangle from its surroundings. Rectangles are fractions of the frame, so one list
+  // works at every width.
+  for (const width of clip.lastStillPatches?.length ? cfg.widths : []) {
+    const file = path.join(out, `${clip.lastStill}-${width}.jpg`);
+    const tmp = `${file}.tmp.jpg`;
+    // delogo takes whole pixels only, so turn the fractions into pixels for this still.
+    const size = sourceSize(ffmpeg, file);
+    const delogo = clip.lastStillPatches
+      .map(({ x, y, w, h }) => {
+        const px = (f, n) => Math.round(f * n);
+        return `delogo=x=${px(x, size.w)}:y=${px(y, size.h)}:w=${px(w, size.w)}:h=${px(h, size.h)}`;
+      })
+      .join(',');
+    run(['-i', file, '-vf', delogo, '-q:v', '2', tmp]);
+    fs.renameSync(tmp, file);
+  }
+  if (clip.lastStillPatches?.length) console.log(`→ ${clip.lastStill}-*.jpg: ${clip.lastStillPatches.length} patch(es) painted out`);
 
   if (withFrames) {
     const dir = path.join(out, 'frames', name);
@@ -91,4 +111,5 @@ for (const [name, clip] of Object.entries(cfg.clips)) {
 }
 
 fs.writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(manifest, null, 2));
+writeHeaderTone();
 console.log('Done.');

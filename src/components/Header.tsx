@@ -1,19 +1,23 @@
 import { BRAND } from '../config';
+import { BrandMark } from './BrandMark';
 import { useCart } from '../cart/CartContext';
 
 interface Props {
   onShopAll(): void;
+  /** The footage behind the logo is dark: use the light version of the logo. */
+  onDark?: boolean;
 }
 
-export function Header({ onShopAll }: Props) {
+export function Header({ onShopAll, onDark = false }: Props) {
   const cart = useCart();
   return (
-    <header className="header">
+    <header className={`header${onDark ? ' header--on-dark' : ''}`}>
       <a className="skip-link" href="#shop">
         Skip to the shop
       </a>
       <a className="wordmark" href="#top" aria-label={`${BRAND.name}, back to the top`}>
-        {BRAND.name}
+        <BrandMark className="wordmark__mark" />
+        <span className="wordmark__name">{BRAND.name}</span>
       </a>
       <nav className="header__nav" aria-label="Main">
         <a

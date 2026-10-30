@@ -1,9 +1,13 @@
 import { BRAND } from '../config';
+import { BrandMark } from './BrandMark';
 
 export function Footer() {
   return (
     <footer className="footer">
-      <p className="footer__brand">{BRAND.name}</p>
+      <p className="footer__brand">
+        <BrandMark className="footer__mark" />
+        {BRAND.name}
+      </p>
       <p>
         {BRAND.place}
         <br />

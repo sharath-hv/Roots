@@ -50,8 +50,9 @@ export const MEDIA = {
 // speed feels the same in both parts.
 export const TIMELINE = {
   vhPerSecond: 80,
-  walkInSeconds: 5,
-  hutOpenSeconds: 6,
+  // Keep these equal to the encoded clip lengths (doorsAjarSeconds is read against them).
+  walkInSeconds: 4.92,
+  hutOpenSeconds: 4.92,
   holdVh: 35, // beat on the last frame of each clip
   foldVh: 360, // three lines one after another, each held long enough to read
   dissolveVh: 90, // meadow pushes through to the hut approach
@@ -62,5 +63,4 @@ export const TIMELINE = {
 
 export const STORAGE_KEYS = {
   cart: 'farmlife.cart.v1',
-  sound: 'farmlife.sound.v1',
 };
