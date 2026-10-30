@@ -106,7 +106,7 @@ In `src/config.ts`:
 - **Reduced motion** (`prefers-reduced-motion: reduce`) shows the fold and the stall as plain sections: no scrubbing, and no video is downloaded.
 - **Hotspots** are `<button>`s with labels. Hover or keyboard focus opens the card, Tab moves into it, and Esc closes it and puts focus back on the hotspot. On touch screens a tap opens a bottom sheet instead.
 - **Cart** uses a context and reducer and is saved to `localStorage` (every read and write is wrapped in try/catch). Adding an item opens the drawer and moves focus into it. Focus stays trapped inside while it is open, and returns to where you were when it closes. **Checkout is a stub.**
-- **Sound** is a countryside ambience (birds, crickets, a passing bee, butterfly wingbeats) built with Web Audio, with no audio files. It is off until the visitor presses the speaker button in the bottom-right corner (`SoundToggle.tsx`), the one exception to keeping that corner clear. The choice is saved, and if it was on last visit it resumes on the first click or key press. It pauses while the tab is hidden.
+- **Sound** is a countryside ambience (birds, crickets, a passing bee, butterfly wingbeats) built with Web Audio, with no audio files. It is on by default and toggled with the speaker button in the bottom-right corner (`SoundToggle.tsx`), the one exception to keeping that corner clear. Browsers block audio until the visitor interacts, so it tries to start on load and otherwise starts on the first click, tap or key press. Turning it off is saved for later visits. It pauses while the tab is hidden.
 - If part 1 fails to load, the page falls back to the plain layout.
 
 ## Checked

@@ -1,7 +1,7 @@
 // Countryside ambience made entirely with Web Audio: birds calling, crickets chirping in bouts,
 // the odd bee drifting past and the soft wingbeats of a butterfly, each from a random spot in
 // the stereo field. There is no constant background bed, so between calls the page is quiet.
-// Nothing plays until the visitor turns it on (browsers block audio before a gesture).
+// Browsers block audio before a gesture, so start() may have to wait for a click or key press.
 
 const MASTER_LEVEL = 0.55;
 const FADE_S = 1.2;
@@ -21,6 +21,7 @@ class Ambience {
   private noise: AudioBuffer | null = null;
   private timers: number[] = [];
   private playing = false;
+  private layersOn = false;
 
   private build() {
     const ctx = new AudioContext();
@@ -170,7 +171,11 @@ class Ambience {
   private later(fn: () => void, seconds: number) {
     this.timers.push(
       window.setTimeout(() => {
-        if (this.playing) fn();
+        if (!this.playing) return;
+        // While the context is suspended (tab hidden) time stands still, so anything scheduled
+        // now would pile up and play at once on return. Wait instead.
+        if (this.ctx?.state === 'running') fn();
+        else this.later(fn, 1);
       }, seconds * 1000),
     );
   }
@@ -181,28 +186,38 @@ class Ambience {
     else void this.ctx.resume();
   };
 
-  async start() {
-    if (this.playing) return;
-    if (!this.ctx) {
-      this.build();
-      document.addEventListener('visibilitychange', this.onVisibility);
-    }
-    this.playing = true;
-    const ctx = this.ctx!;
-    await ctx.resume();
-    // Turned off again while the context was waking up.
-    if (!this.playing) return;
+  /** Layers start only once the browser actually lets the context run. */
+  private onState = () => {
+    const ctx = this.ctx;
+    if (!ctx || !this.playing || this.layersOn || ctx.state !== 'running') return;
+    this.layersOn = true;
     this.master!.gain.cancelScheduledValues(ctx.currentTime);
     this.master!.gain.setTargetAtTime(MASTER_LEVEL, ctx.currentTime, FADE_S / 3);
     this.later(this.bird, rand(0.3, 1.5));
     this.later(this.cricket, rand(1, 3));
     this.later(this.butterfly, rand(3, 8));
     this.later(this.buzz, rand(5, 12));
+  };
+
+  /**
+   * Safe to call repeatedly. Without a user gesture the browser may keep the context suspended;
+   * calling this again from a click or key press is what lets it run.
+   */
+  start() {
+    if (!this.ctx) {
+      this.build();
+      document.addEventListener('visibilitychange', this.onVisibility);
+      this.ctx!.addEventListener('statechange', this.onState);
+    }
+    this.playing = true;
+    if (this.ctx!.state !== 'running' && !document.hidden) void this.ctx!.resume();
+    this.onState();
   }
 
   stop() {
     if (!this.playing || !this.ctx) return;
     this.playing = false;
+    this.layersOn = false;
     this.timers.forEach(clearTimeout);
     this.timers = [];
     const ctx = this.ctx;
@@ -216,6 +231,7 @@ class Ambience {
   /** Shut down for good: used when a hot reload replaces this module during development. */
   destroy() {
     this.playing = false;
+    this.layersOn = false;
     this.timers.forEach(clearTimeout);
     this.timers = [];
     document.removeEventListener('visibilitychange', this.onVisibility);
