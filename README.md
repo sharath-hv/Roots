@@ -11,6 +11,10 @@ npm run dev     # http://localhost:5173
 npm run build   # type-check and build to dist/
 ```
 
+### Publishing
+
+Every push to `main` runs `.github/workflows/deploy-pages.yml`, which builds with Vite and publishes `dist/` to GitHub Pages: https://sharath-hv.github.io/Roots/. In the repo's **Settings → Pages**, **Source** must be **GitHub Actions**.
+
 ### Opening by double-click
 
 Double-clicking `index.html` in this folder opens the site without a server. That file is the dev source, so when it is opened from disk it redirects to `dist/index.html`, the build. **Run `npm run build` first, and again after any change**, or you will see an old version (or nothing, if `dist/` does not exist yet).
