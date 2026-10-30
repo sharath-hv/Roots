@@ -273,6 +273,40 @@ p {
   bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   z-index: 45;
 }
+/* Sound is on but the browser is waiting for a click: widen into a pill that asks for one. */
+.sound-toggle.is-waiting {
+  display: flex;
+  gap: 8px;
+  width: auto;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  border-color: var(--accent-strong);
+  color: var(--ink);
+  animation: sound-ask 2.4s ease-out infinite;
+}
+.sound-toggle__label {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@keyframes sound-ask {
+  0% {
+    box-shadow:
+      0 2px 10px rgb(59 47 20 / 0.2),
+      0 0 0 0 rgb(180 80 27 / 0.45);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 2px 10px rgb(59 47 20 / 0.2),
+      0 0 0 12px rgb(180 80 27 / 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-waiting {
+    animation: none;
+  }
+}
 
 /* Vertically centred on the right edge, clear of the watermark corner. */
 .scroll-progress {

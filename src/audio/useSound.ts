@@ -1,15 +1,23 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { STORAGE_KEYS } from '../config';
 import { readStorage, writeStorage } from '../lib/storage';
 import { ambience } from './ambience';
 
 /**
  * Sound is on by default; a visitor who turns it off stays off on later visits. Browsers won't
- * start audio before a gesture, so it tries straight away and again on the first click, tap or
- * key press anywhere on the page.
+ * start audio before a click, tap or key press (scrolling doesn't count), so it tries straight
+ * away and again on the first such gesture anywhere on the page. Until then `waiting` is true,
+ * so the button can ask for that click.
  */
 export function useSound() {
   const [on, setOn] = useState(() => readStorage<boolean>(STORAGE_KEYS.sound, true));
+  const [audible, setAudible] = useState(ambience.audible);
+  // Whether sound was still waiting when the current press began. The same press is what lets
+  // the browser start audio, so by the time `click` fires it may already be playing; reading
+  // the state then would turn it straight back off.
+  const waitingAtPress = useRef(false);
+
+  useEffect(() => ambience.subscribe(() => setAudible(ambience.audible)), []);
 
   useEffect(() => {
     if (!on) return;
@@ -20,7 +28,20 @@ export function useSound() {
     return () => events.forEach((e) => window.removeEventListener(e, resume));
   }, [on]);
 
+  const waiting = on && !audible;
+
+  /** Call from the button's pointerdown and keydown, before the window listeners run. */
+  const notePress = useCallback(() => {
+    waitingAtPress.current = on && !ambience.audible;
+  }, [on]);
+
   const toggle = useCallback(() => {
+    if (waitingAtPress.current) {
+      // On but blocked: this press is the go-ahead, so start rather than mute.
+      waitingAtPress.current = false;
+      ambience.start();
+      return;
+    }
     const next = !on;
     if (next) ambience.start();
     else ambience.stop();
@@ -28,5 +49,5 @@ export function useSound() {
     setOn(next);
   }, [on]);
 
-  return { on, toggle };
+  return { on, waiting, toggle, notePress };
 }

@@ -1,16 +1,22 @@
 import { useSound } from '../audio/useSound';
 
-/** Floating speaker button in the bottom-right corner, kept apart from the header's basket. */
+/**
+ * Floating speaker button in the bottom-right corner, kept apart from the header's basket.
+ * While the browser is holding sound back until a click, it widens to ask for one.
+ */
 export function SoundToggle() {
   const sound = useSound();
+  const label = sound.waiting ? 'Turn on countryside sound' : 'Countryside sound';
   return (
     <button
       type="button"
-      className="round-btn sound-toggle"
+      className={`round-btn sound-toggle${sound.waiting ? ' is-waiting' : ''}`}
+      onPointerDown={sound.notePress}
+      onKeyDown={sound.notePress}
       onClick={sound.toggle}
-      aria-label="Countryside sound"
-      aria-pressed={sound.on}
-      title={sound.on ? 'Turn sound off' : 'Turn sound on'}
+      aria-label={label}
+      aria-pressed={sound.waiting ? undefined : sound.on}
+      title={sound.waiting ? undefined : sound.on ? 'Turn sound off' : 'Turn sound on'}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
@@ -20,6 +26,12 @@ export function SoundToggle() {
           <path d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
         )}
       </svg>
+      {sound.waiting && (
+        <span className="sound-toggle__label" aria-hidden="true">
+          <span className="only-fine">Click for sound</span>
+          <span className="only-coarse">Tap for sound</span>
+        </span>
+      )}
     </button>
   );
 }

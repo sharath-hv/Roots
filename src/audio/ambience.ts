@@ -22,6 +22,7 @@ class Ambience {
   private timers: number[] = [];
   private playing = false;
   private layersOn = false;
+  private listeners = new Set<() => void>();
 
   private build() {
     const ctx = new AudioContext();
@@ -197,7 +198,23 @@ class Ambience {
     this.later(this.cricket, rand(1, 3));
     this.later(this.butterfly, rand(3, 8));
     this.later(this.buzz, rand(5, 12));
+    this.emit();
   };
+
+  /** True once sound is really playing, as opposed to on but waiting for the browser to allow it. */
+  get audible() {
+    return this.playing && this.layersOn;
+  }
+
+  /** Called whenever `audible` may have changed. Returns an unsubscribe function. */
+  subscribe(fn: () => void) {
+    this.listeners.add(fn);
+    return () => void this.listeners.delete(fn);
+  }
+
+  private emit() {
+    this.listeners.forEach((fn) => fn());
+  }
 
   /**
    * Safe to call repeatedly. Without a user gesture the browser may keep the context suspended;
@@ -226,6 +243,7 @@ class Ambience {
     window.setTimeout(() => {
       if (!this.playing) void ctx.suspend();
     }, FADE_S * 1000 + 200);
+    this.emit();
   }
 
   /** Shut down for good: used when a hot reload replaces this module during development. */
